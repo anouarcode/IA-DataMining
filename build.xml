@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="blocksworld" default="compile" basedir=".">
+    
+    <!-- Propriétés du projet -->
+    <property name="src.dir" value="src"/>
+    <property name="build.dir" value="build"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="doc.dir" value="docs"/>
+    <property name="main.class" value="blocksworld.Launcher"/>
+    
+    <!-- Chemins des bibliothèques -->
+    <path id="classpath">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+    </path>
+    
+    <!-- Cible pour nettoyer le build -->
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+        <delete dir="${doc.dir}"/>
+    </target>
+    
+    <!-- Cible pour créer les répertoires -->
+    <target name="init">
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${doc.dir}"/>
+    </target>
+    
+    <!-- Cible pour compiler le projet -->
+    <target name="compile" depends="init">
+        <javac srcdir="${src.dir}" 
+               destdir="${build.dir}" 
+               classpathref="classpath"
+               includeantruntime="false"
+               debug="on"
+               debuglevel="lines,vars,source">
+            <compilerarg value="-Xlint:unchecked"/>
+        </javac>
+        
+        <!-- Copier les ressources si nécessaire -->
+        <copy todir="${build.dir}">
+            <fileset dir="${src.dir}" excludes="**/*.java"/>
+        </copy>
+    </target>
+    
+    <!-- Cible pour générer la Javadoc -->
+    <target name="javadoc" depends="init">
+        <javadoc sourcepath="${src.dir}"
+                 destdir="${doc.dir}"
+                 classpathref="classpath"
+                 author="true"
+                 version="true"
+                 use="true"
+                 windowtitle="BlocksWorld API Documentation"
+                 encoding="UTF-8"
+                 charset="UTF-8"
+                 docencoding="UTF-8">
+            <doctitle><![CDATA[<h1>BlocksWorld Project</h1>]]></doctitle>
+            <bottom><![CDATA[<i>BlocksWorld Project Documentation</i>]]></bottom>
+        </javadoc>
+        <echo message="Javadoc générée dans ${doc.dir}"/>
+    </target>
+    
+    <!-- Cible pour exécuter le programme -->
+    <target name="run" depends="compile">
+        <java classname="${main.class}" fork="true">
+            <classpath>
+                <path refid="classpath"/>
+                <pathelement location="${build.dir}"/>
+            </classpath>
+        </java>
+    </target>
+    
+    <!-- Cible pour créer un JAR -->
+    <target name="jar" depends="compile">
+        <jar destfile="${build.dir}/blocksworld-app.jar" basedir="${build.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="${main.class}"/>
+                <attribute name="Class-Path" value="blocksworld.jar bwgenerator.jar"/>
+            </manifest>
+        </jar>
+    </target>
+    
+    <!-- Cible par défaut -->
+    <target name="main" depends="clean,compile,run"/>
+    
+</project>
